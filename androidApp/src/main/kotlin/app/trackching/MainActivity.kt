@@ -11,7 +11,7 @@ import app.trackching.createDatabase
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val database = createDatabase(applicationContext)
+        val database = createDatabase(applicationContext).also { it.seedDefaults() }
         setContent {
             TrackchingTheme {
                 AppShell(database)

@@ -1,0 +1,32 @@
+-- Main categories (parent_id IS NULL) and subcategories (parent_id = a main one).
+CREATE TABLE category (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    kind TEXT NOT NULL CHECK (kind IN ('EXPENSE', 'INCOME')),
+    parent_id INTEGER REFERENCES category(id),
+    color INTEGER NOT NULL,              -- 0xAARRGGBB, e.g. 0xFFE07A00
+    sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+insert:
+INSERT INTO category(name, kind, parent_id, color, sort_order)
+VALUES (?, ?, ?, ?, ?);
+
+lastId:
+SELECT last_insert_rowid();
+
+countAll:
+SELECT COUNT(*) FROM category;
+
+-- Categories you can log against (ones with no subcategories),
+-- most used first; ties keep the default order.
+mostUsed:
+SELECT c.id, c.name, c.color, p.name AS parent_name, COUNT(t.id) AS uses
+FROM category c
+LEFT JOIN category p ON p.id = c.parent_id
+LEFT JOIN txn t ON t.category_id = c.id
+WHERE c.kind = ?
+  AND NOT EXISTS (SELECT 1 FROM category k WHERE k.parent_id = c.id)
+GROUP BY c.id
+ORDER BY uses DESC, c.sort_order, c.id
+LIMIT ?;

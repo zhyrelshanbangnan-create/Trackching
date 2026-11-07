@@ -4,15 +4,24 @@ CREATE TABLE txn (
     centavos INTEGER NOT NULL CHECK (centavos > 0),
     account_id INTEGER NOT NULL REFERENCES account(id),
     to_account_id INTEGER REFERENCES account(id),
+    category_id INTEGER REFERENCES category(id), -- NULL for transfers
     occurred_at INTEGER NOT NULL
 );
 
 insert:
-INSERT INTO txn(kind, centavos, account_id, to_account_id, occurred_at)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO txn(kind, centavos, account_id, to_account_id, category_id, occurred_at)
+VALUES (?, ?, ?, ?, ?, ?);
 
 delete:
 DELETE FROM txn WHERE id = ?;
 
 lastId:
 SELECT last_insert_rowid();
+
+-- The account of the most recently *entered* expense (not the latest date),
+-- so a back-dated entry still counts as "last used".
+lastAccountUsed:
+SELECT account_id FROM txn
+WHERE kind = 'EXPENSE'
+ORDER BY id DESC
+LIMIT 1;

@@ -19,7 +19,7 @@ class BalanceTest {
     }
 
     private fun txn(kind: String, centavos: Long, from: Long, to: Long? = null): Long {
-        db.txnQueries.insert(kind, centavos, from, to, 0)
+        db.txnQueries.insert(kind, centavos, from, to, null, 0)
         return db.txnQueries.lastId().executeAsOne()
     }
 
