@@ -26,17 +26,21 @@ import trackching.shared.generated.resources.ic_close
 /**
  * The full-height sheet used for "New transaction", "New event" and so on:
  * blue top edge, a sticker title, and a close button.
+ * `content` gets a `close` function to slide the sheet away, e.g. after saving.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrackchingSheet(
     title: String,
     onDismiss: () -> Unit,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.(close: () -> Unit) -> Unit,
 ) {
     val c = TrackchingTheme.colors
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
+
+    // Slide the sheet down first, then tell the caller it's gone.
+    val close: () -> Unit = { scope.launch { state.hide() }.invokeOnCompletion { onDismiss() } }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -51,13 +55,10 @@ fun TrackchingSheet(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(Modifier.weight(1f)) { Tag(title) }
-            IconButton(onClick = {
-                // Slide the sheet down first, then tell the caller it's gone.
-                scope.launch { state.hide() }.invokeOnCompletion { onDismiss() }
-            }) {
+            IconButton(onClick = close) {
                 Icon(painterResource(Res.drawable.ic_close), contentDescription = "Close without saving", tint = c.ink)
             }
         }
-        content()
+        content(close)
     }
 }

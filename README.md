@@ -11,7 +11,7 @@ This project is a personal side project of mine to practice mobile app developme
 | Folder | What lives there |
 | --- | --- |
 | `shared/` | Everything both apps share: screens (Compose Multiplatform), data and money logic. |
-| `androidApp/` | The small Android shell: starts the app and shows the shared `App()` screen. |
+| `androidApp/` | The small Android shell: starts the app and shows the shared `AppShell()` screen. |
 | `.github/workflows/` | CI: builds the app and runs all tests on every push and pull request. |
 
 Built with Kotlin Multiplatform, Compose Multiplatform and (soon) SQLDelight.

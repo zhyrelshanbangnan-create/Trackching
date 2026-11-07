@@ -2,6 +2,12 @@ package app.trackching
 
 import app.trackching.db.MostUsed
 import app.trackching.db.TrackchingDatabase
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
+import app.trackching.db.Active
+import app.trackching.db.Balances
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 
 class Ledger(private val db: TrackchingDatabase) {
 
@@ -29,4 +35,11 @@ class Ledger(private val db: TrackchingDatabase) {
             ?: db.accountQueries.active().executeAsList().firstOrNull()?.id
 
     fun balance(accountId: Long): Long = db.accountQueries.balanceOf(accountId).executeAsOne()
+
+    /** Accounts you can pay from, in order. */
+    fun accounts(): List<Active> = db.accountQueries.active().executeAsList()
+
+    /** Every account's balance, re-sent automatically whenever a transaction changes. */
+    fun balances(): Flow<List<Balances>> =
+        db.accountQueries.balances().asFlow().mapToList(Dispatchers.Default)
 }
