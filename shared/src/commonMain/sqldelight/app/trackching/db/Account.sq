@@ -26,3 +26,11 @@ FROM account a
 LEFT JOIN txn t ON t.account_id = a.id OR t.to_account_id = a.id
 WHERE a.id = ?
 GROUP BY a.id;
+
+countAll:
+SELECT COUNT(*) FROM account;
+
+active:
+SELECT id, name FROM account
+WHERE archived = 0
+ORDER BY id;
